@@ -2,11 +2,11 @@ import pymysql
 from pymysql import Error
 # MySQL 数据库配置
 DB_CONFIG = {
-    'host': 'localhost',
+    'host': '8.148.203.93',
     'user': 'root',
-    'password': '123456',
-    'database': 'agricultural_products_db',
-    'port': 3306,
+    'password': '12345Wcvff',
+    'database': 'web_database',
+    'port': 13306,
     'charset': 'utf8mb4',
     'cursorclass': pymysql.cursors.DictCursor
 }
