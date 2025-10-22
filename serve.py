@@ -3,8 +3,9 @@ from fastapi import HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 import httpx
-import os
 from myapi import login
+from myapi import images
+from myapi import shopping
 
 app = FastAPI()
 app.add_middleware(
@@ -16,6 +17,8 @@ app.add_middleware(
 )
 
 app.include_router(login.router, prefix='/apiForLogin')
+app.include_router(images.router, prefix='/apiForImages')
+app.include_router(shopping.router, prefix='/apiForShopping')
 
 @app.get('/')
 async def root():
