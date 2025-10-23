@@ -6,6 +6,7 @@ import httpx
 from myapi import login
 from myapi import images
 from myapi import shopping
+from myapi import user
 
 app = FastAPI()
 app.add_middleware(
@@ -19,6 +20,7 @@ app.add_middleware(
 app.include_router(login.router, prefix='/apiForLogin')
 app.include_router(images.router, prefix='/apiForImages')
 app.include_router(shopping.router, prefix='/apiForShopping')
+app.include_router(user.router, prefix='/apiForUser')
 
 @app.get('/')
 async def root():
