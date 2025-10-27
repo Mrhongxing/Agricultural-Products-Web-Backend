@@ -24,6 +24,12 @@ async def get_park(park: dict):
             sql_fruits = "SELECT * FROM fruits WHERE fruit_shopper = %s"
             cursor.execute(sql_fruits, (park['id'],))
             fruits = cursor.fetchall()
+            for fruit in fruits:
+                sql_type = "SELECT * FROM types WHERE id = %s"
+                cursor.execute(sql_type, (fruit['fruit_type'],))
+                type_result = cursor.fetchone()
+                if type_result:
+                    fruit['fruit_type'] = type_result['type_name']
             park['fruits'] = fruits
             park['has_more'] = has_more
         if parks:
