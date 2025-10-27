@@ -56,7 +56,7 @@ def validate_token(token: str):
                 role="",
                 nickname="",
                 token=None
-            ).dict()
+            )
         else:
             return bakeDataForLogin(
                 success=True,
