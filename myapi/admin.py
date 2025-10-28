@@ -44,5 +44,4 @@ def create_admin(need_data: dict, credentials: HTTPAuthorizationCredentials=Depe
     except Exception as e:
         return {"error": str(e)}
     finally:
-        cursor.close()
-        mysql_conn.close()
+        mysql.close_db_connection(mysql_conn, cursor)

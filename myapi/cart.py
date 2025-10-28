@@ -35,3 +35,22 @@ async def get_cart(cart: dict):
     finally:
         cursor.close()
         mysql_conn.close()
+
+@router.post("/remove_from_cart")
+async def remove_from_cart(item: dict):
+    mysql_conn = mysql.get_db_connection()
+    if not mysql_conn:
+        return {"success": False, "message": "Database connection error"}
+    cursor = mysql_conn.cursor()
+    print(item  )
+    try:
+        print("Removing item from cart")
+        delete_sql = "DELETE FROM cart WHERE user_id=%s AND fruit_id=%s"
+        cursor.execute(delete_sql, (item['user_id'], item['product_id']))
+        mysql_conn.commit()
+        return {"success": True, "message": "Item removed from cart"}
+    except Exception as e:
+        return {"error": str(e)}
+    finally:
+        cursor.close()
+        mysql_conn.close()

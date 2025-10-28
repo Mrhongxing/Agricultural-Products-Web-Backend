@@ -54,8 +54,7 @@ def bake_product(product_id_json:dict):
     except Exception as e:
         return {"error": str(e)}
     finally:
-        cursor.close()
-        mysql_conn.close()
+        mysql.close_db_connection(mysql_conn, cursor)
     
 @router.post("/add_to_cart")
 async def add_to_cart(item: dict):
@@ -78,5 +77,5 @@ async def add_to_cart(item: dict):
         print("Failed to add item to cart:", str(e))
         return {"error": str(e)}
     finally:
-        cursor.close()
-        mysql_conn.close()
+        mysql.close_db_connection(mysql_conn, cursor)
+        

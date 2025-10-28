@@ -39,5 +39,4 @@ async def get_park(park: dict):
     except Exception as e:
         return {"error": str(e)}
     finally:
-        cursor.close()
-        mysql_conn.close()
+        mysql.close_db_connection(mysql_conn, cursor)
