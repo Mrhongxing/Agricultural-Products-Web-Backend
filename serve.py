@@ -10,6 +10,7 @@ from myapi import user
 from myapi import changes
 from myapi import parks
 from myapi import admin
+from myapi import cart
 
 app = FastAPI()
 app.add_middleware(
@@ -27,6 +28,7 @@ app.include_router(user.router, prefix='/apiForUser')
 app.include_router(changes.router, prefix='/apiForChanges')
 app.include_router(parks.router, prefix='/apiForParks')
 app.include_router(admin.router, prefix='/apiForAdmin')
+app.include_router(cart.router, prefix='/apiForCart')
 
 @app.get('/')
 async def root():

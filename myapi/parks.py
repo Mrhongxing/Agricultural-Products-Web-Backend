@@ -33,7 +33,6 @@ async def get_park(park: dict):
             park['fruits'] = fruits
             park['has_more'] = has_more
         if parks:
-            print(parks)
             return parks
         else:
             return {"message": "No parks found"}

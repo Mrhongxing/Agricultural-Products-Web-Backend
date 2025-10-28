@@ -57,3 +57,26 @@ def bake_product(product_id_json:dict):
         cursor.close()
         mysql_conn.close()
     
+@router.post("/add_to_cart")
+async def add_to_cart(item: dict):
+    mysql_conn = mysql.get_db_connection()
+    if not mysql_conn:
+        return {"success": False, "message": "Database connection error"}
+    cursor = mysql_conn.cursor()
+    try:
+        shopper_sql="SELECT fruit_shopper,price FROM fruits WHERE id=%s"
+        cursor.execute(shopper_sql, (item['fruit_id'],))
+        fruit_info = cursor.fetchone()
+        shopper = fruit_info.get('fruit_shopper')
+        price = fruit_info.get('price')
+        sql = "INSERT INTO cart (fruit_id, user_id,price,shopper_id) VALUES (%s, %s,%s,%s)"
+        cursor.execute(sql, (item['fruit_id'], item['user_id'], price,shopper))
+        mysql_conn.commit()
+        print("Item added to cart successfully.")
+        return {"success": True}
+    except Exception as e:
+        print("Failed to add item to cart:", str(e))
+        return {"error": str(e)}
+    finally:
+        cursor.close()
+        mysql_conn.close()
