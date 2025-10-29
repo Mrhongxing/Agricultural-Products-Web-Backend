@@ -68,3 +68,46 @@ def create_admin(need_data: dict, credentials: HTTPAuthorizationCredentials=Depe
         return {"error": str(e)}
     finally:
         mysql.close_db_connection(mysql_conn, cursor)
+    
+@router.post('/update_user')
+async def update_user(user_data: dict, credentials: HTTPAuthorizationCredentials=Depends(security)):
+    token = credentials.credentials
+    # Here you would normally validate the token
+    userInfo = validate_token(token)
+    if not userInfo or userInfo.role != "admin":
+        return {"success": False, "message": "Unauthorized"}
+    mysql_conn = mysql.get_db_connection()
+    if not mysql_conn:
+        return {"success": False, "message": "Database connection error"}
+    cursor = mysql_conn.cursor()
+    print(user_data)
+    user_id = user_data.get("id")
+    if not user_id:
+        return {"success": False, "message": "Missing user id"}
+
+    allowed_fields = ["username", "email", "role", "nickname", "is_active", "img"]
+    set_clauses = []
+    params = []
+
+    for field in allowed_fields:
+        if field in user_data:
+            set_clauses.append(f"{field} = %s")
+            params.append(user_data[field])
+
+    if not set_clauses:
+        return {"success": False, "message": "No fields to update"}
+
+    sql = "UPDATE users SET " + ", ".join(set_clauses) + " WHERE id = %s"
+    params.append(user_id)
+
+    try:
+        cursor.execute(sql, tuple(params))
+        mysql_conn.commit()
+        if cursor.rowcount == 0:
+            return {"success": False, "message": "User not found"}
+        return {"success": True, "message": "User updated successfully"}
+    except Exception as e:
+        mysql_conn.rollback()
+        return {"error": str(e)}
+    finally:
+        mysql.close_db_connection(mysql_conn, cursor)
