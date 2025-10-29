@@ -10,12 +10,12 @@ async def get_cart(cart: dict):
     if not mysql_conn:
         return {"success": False, "message": "Database connection error"}
     cursor = mysql_conn.cursor()
-    count_sql = "SELECT COUNT(*) as total FROM cart"
-    cursor.execute(count_sql)
+    count_sql = "SELECT COUNT(*) as total FROM cart WHERE user_id=%s"
+    cursor.execute(count_sql, (cart['user_id'],))
     total_count = cursor.fetchone()['total']
-    sql = "SELECT * FROM cart LIMIT %s OFFSET %s"
+    sql = "SELECT * FROM cart WHERE user_id=%s LIMIT %s OFFSET %s"
     try:    
-        cursor.execute(sql, (need_number, offset_number))
+        cursor.execute(sql, (cart['user_id'], need_number, offset_number))
         carts = cursor.fetchall()
         current_loaded = len(carts)
         has_more = (offset_number + current_loaded) < total_count

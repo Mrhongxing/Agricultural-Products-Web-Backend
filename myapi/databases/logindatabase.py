@@ -8,4 +8,5 @@ class bakeDataForLogin(BaseModel):
     email:str
     role:str
     nickname:str
+    img:str
     token: Optional[str] = None

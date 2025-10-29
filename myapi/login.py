@@ -47,7 +47,8 @@ def validate_token(token: str):
         email: str = payload.get("email")
         role: str = payload.get("role")
         nickname: str = payload.get("nickname")
-        if not all([id, username, password_hash, email, role, nickname]):
+        img: str = payload.get("img")
+        if not all([id, username, password_hash, email, role, nickname, img]):
             return bakeDataForLogin(
                 success=False,
                 message="Invalid token payload",
@@ -55,7 +56,8 @@ def validate_token(token: str):
                 email="",
                 role="",
                 nickname="",
-                token=None
+                token=None,
+                img=""
             )
         else:
             return bakeDataForLogin(
@@ -65,7 +67,8 @@ def validate_token(token: str):
                 email=email,
                 role=role, 
                 nickname=nickname,
-                token=token
+                token=token,
+                img=img
             )
     except JWTError:
         return bakeDataForLogin(
@@ -75,7 +78,8 @@ def validate_token(token: str):
             email="",
             role="",
             nickname="",
-            token=None
+            token=None,
+            img=""
         )
     except jwt.ExpiredSignatureError:
         return bakeDataForLogin(
@@ -85,7 +89,8 @@ def validate_token(token: str):
             email="",
             role="",
             nickname="",
-            token=None
+            token=None,
+            img=""
         )
 # 注册接口
 @router.post("/register")
@@ -125,7 +130,8 @@ async def login(form_data: dict):
             email="",
             role="",
             nickname="",
-            token=None
+            token=None,
+            img=""
         )
     try:
         with connection.cursor() as cursor:
@@ -140,7 +146,8 @@ async def login(form_data: dict):
                     email="",
                     role="",
                     nickname="",
-                    token=None
+                    token=None,
+                    img=""
                 )
             elif user['is_active'] == 0:
                 return bakeDataForLogin(
@@ -150,7 +157,8 @@ async def login(form_data: dict):
                     email="",
                     role="",
                     nickname="",
-                    token=None
+                    token=None,
+                    img=""
                 )
             elif verify_password(password, user['password_hash']):
                 if(user['role']) ==1:
@@ -166,8 +174,10 @@ async def login(form_data: dict):
                     'email':user['email'],
                     'role':user['role'],
                     'nickname':user['nickname'],
+                    'img':user['img']
                 }
             token = create_access_token(data=tokendata)
+            print(user['img'])
             return bakeDataForLogin(
                 success=True,
                 message="Login successful",
@@ -175,7 +185,8 @@ async def login(form_data: dict):
                 email=user['email'],
                 role=user['role'],
                 nickname=user['nickname'],
-                token=token
+                token=token,
+                img=user['img']
             )
     finally:
         close_db_connection(connection)
@@ -192,7 +203,8 @@ async def validate_token_endpoint(token_data: dict):
             email="",
             role="",
             nickname="",
-            token=None
+            token=None,
+            img=""
         )
     else:
         return result

@@ -19,7 +19,6 @@ def bake_product(product_id_json:dict):
     try:    
         cursor.execute(sql, (need_number, offset_number))
         product = cursor.fetchall()
-        print(product)
         if product:
             current_loaded = len(product)
             has_more = (offset_number + current_loaded) < total_count
