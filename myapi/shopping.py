@@ -1,8 +1,25 @@
-from fastapi import APIRouter
+from fastapi import APIRouter,File, UploadFile, Form
 from myapi.databases.productdatabase import bakeDataForProduct
 import mysql
+import uuid
+import os
+from typing import List
     
 router = APIRouter()
+
+def get_file_extension(filename: str, content_type: str) -> str:
+    """根据文件名或Content-Type获取文件扩展名"""
+    if filename and '.' in filename:
+        return os.path.splitext(filename)[1]
+    
+    # 根据MIME类型确定扩展名
+    extension_map = {
+        "image/jpeg": ".jpg",
+        "image/png": ".png",
+        "image/webp": ".webp",
+        "image/gif": ".gif"
+    }
+    return extension_map.get(content_type, ".jpg")
 
 @router.post("/shopping")
 def bake_product(product_id_json:dict):
@@ -77,4 +94,60 @@ async def add_to_cart(item: dict):
         return {"error": str(e)}
     finally:
         mysql.close_db_connection(mysql_conn, cursor)
-        
+
+@router.post("/add")
+async def add_fruit(fruit: dict):
+    mysql_conn = mysql.get_db_connection()
+    if not mysql_conn:
+        return {"success": False, "message": "Database connection error"}
+    cursor = mysql_conn.cursor()
+    try:
+        sql = """INSERT INTO fruits 
+                 (fruit_name, fruit_introduce, price, fruit_image, is_available, fruit_type, 
+                  fruit_image2, fruit_image3, fruit_image4, fruit_image5, fruit_shopper) 
+                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+        cursor.execute(sql, (
+            fruit['fruit_name'], fruit['fruit_introduce'], fruit['price'], fruit['fruit_image'],
+            fruit['is_available'], fruit['fruit_type'], fruit['fruit_image2'], fruit['fruit_image3'],
+            fruit['fruit_image4'], fruit['fruit_image5'], fruit['fruit_shopper']
+        ))
+        mysql_conn.commit()
+        print("Fruit added successfully.")
+        return {"success": True}
+    except Exception as e:
+        print("Failed to add fruit:", str(e))
+        return {"error": str(e)}
+    finally:
+        mysql.close_db_connection(mysql_conn, cursor)
+
+@router.post("/add1")
+async def add_fruit_simple(name:str=Form(...), desc:str=Form(...), price:str=Form(...), type:str=Form(...), images: List[UploadFile] = File(...)):
+    mysql_conn = mysql.get_db_connection()
+    if not mysql_conn:
+        return {"success": False, "message": "Database connection error"}
+    cursor = mysql_conn.cursor()
+    if not images:
+        return {"error": "No image uploaded"}
+    print("Received image:", images[0].filename, images[0].content_type)
+    try:
+        for  i,image in enumerate(images):
+            file_extension = get_file_extension(image.filename, image.content_type)
+            unique_filename = f"{uuid.uuid4()}{file_extension}"
+            upload_path = os.path.join("myapi/src", unique_filename)
+            with open(upload_path, "wb") as buffer:
+                buffer.write(await image.read())
+            if i==0:
+                fruit_image=upload_path
+            elif i==1:
+                fruit_image2=upload_path
+            elif i==2:
+                fruit_image3=upload_path
+            elif i==3:
+                fruit_image4=upload_path
+            elif i==4:
+                fruit_image5=upload_path
+    except Exception as e:
+        print("Failed to add fruit:", str(e))
+        return {"error": str(e)}
+    finally:
+        mysql.close_db_connection(mysql_conn, cursor)

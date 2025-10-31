@@ -2,7 +2,8 @@ from fastapi import FastAPI
 from fastapi import HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
-import httpx
+from fastapi.staticfiles import StaticFiles
+import os
 from myapi import login
 from myapi import images
 from myapi import shopping
@@ -21,6 +22,13 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# 创建上传目录
+UPLOAD_DIR = "uploads"
+os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+# 静态文件服务
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 app.include_router(login.router, prefix='/apiForLogin')
 app.include_router(images.router, prefix='/apiForImages')
