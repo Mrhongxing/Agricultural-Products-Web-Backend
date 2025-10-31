@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 import mysql
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from myapi.login import validate_token
+from myapi.login import validate_token, hash_password
 
 router = APIRouter()
 security = HTTPBearer()
@@ -85,21 +85,29 @@ async def update_user(user_data: dict, credentials: HTTPAuthorizationCredentials
     if not user_id:
         return {"success": False, "message": "Missing user id"}
 
-    allowed_fields = ["username", "email", "role", "nickname", "is_active", "img"]
+    allowed_fields = ["username", "email", "role", "nickname", "is_active", "img", "password"]
     set_clauses = []
     params = []
 
     for field in allowed_fields:
         if field in user_data:
-            set_clauses.append(f"{field} = %s")
-            params.append(user_data[field])
+            if field == "password":
+                # Hash the password before storing it
+                hashed_password = hash_password(user_data[field])
+                set_clauses.append("password_hash = %s")
+                params.append(hashed_password)
+                print("Hashed password:", hashed_password)
+            else:
+                set_clauses.append(f"{field} = %s")
+                params.append(user_data[field])
 
     if not set_clauses:
         return {"success": False, "message": "No fields to update"}
 
     sql = "UPDATE users SET " + ", ".join(set_clauses) + " WHERE id = %s"
     params.append(user_id)
-
+    print("SQL Query:", sql)
+    print("Parameters:", params)
     try:
         cursor.execute(sql, tuple(params))
         mysql_conn.commit()
