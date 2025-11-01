@@ -10,3 +10,4 @@ class bakeDataForLogin(BaseModel):
     nickname:str
     img:str
     token: Optional[str] = None
+    have_shopper: Optional[int] = None

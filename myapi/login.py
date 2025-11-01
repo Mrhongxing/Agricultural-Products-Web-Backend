@@ -148,6 +148,7 @@ async def login(form_data: dict):
                     nickname="",
                     token=None,
                     img=""
+                    
                 )
             elif user['is_active'] == 0:
                 return bakeDataForLogin(
@@ -177,7 +178,7 @@ async def login(form_data: dict):
                     'img':user['img']
                 }
             token = create_access_token(data=tokendata)
-            print(user['img'])
+            print(user['have_park'])
             return bakeDataForLogin(
                 success=True,
                 message="Login successful",
@@ -186,7 +187,8 @@ async def login(form_data: dict):
                 role=user['role'],
                 nickname=user['nickname'],
                 token=token,
-                img=user['img']
+                img=user['img'],
+                have_shopper=user["have_park"]
             )
     finally:
         close_db_connection(connection)
