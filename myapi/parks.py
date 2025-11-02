@@ -196,7 +196,9 @@ def delete_product(product_id_json:dict):
                 if os.path.exists(image_path):
                     os.remove(image_path)
         sql = "DELETE FROM fruits WHERE id = %s"
+        print(fruit_id)
         cursor.execute(sql, (fruit_id,))
+        print(cursor.rowcount,fruit_id)
         mysql_conn.commit()
         return {"message": "Fruit deleted successfully"}
     except Exception as e:

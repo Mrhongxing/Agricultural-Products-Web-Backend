@@ -30,7 +30,7 @@ def bake_product(product_id_json:dict):
     if not mysql_conn:
         return {"success": False, "message": "Database connection error"}
     cursor = mysql_conn.cursor()
-    count_sql = "SELECT COUNT(*) as total FROM fruits"
+    count_sql = "SELECT COUNT(*) as total FROM fruits WHERE is_available = 1"
     cursor.execute(count_sql)
     total_count = cursor.fetchone()['total']
     sql = "SELECT * FROM fruits WHERE is_available = 1 LIMIT %s OFFSET %s"
