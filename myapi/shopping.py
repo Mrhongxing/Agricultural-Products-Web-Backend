@@ -108,10 +108,11 @@ async def add_fruit_simple(name:str=Form(...), desc:str=Form(...), location:str=
     print("Token received:", token)
     userInfo = validate_token(token)
     if not userInfo or userInfo.role != "shopper":
+        print(userInfo.username)
         print(userInfo.role)
         return {"success": False, "message": "Unauthorized"}
     if not images:
-        return {"error": "No image uploaded"}
+        return {"success": False, "message": "No image uploaded"}
     print("Received image:", images[0].filename, images[0].content_type)
     try:
         for  i,image in enumerate(images):
@@ -140,7 +141,7 @@ async def add_fruit_simple(name:str=Form(...), desc:str=Form(...), location:str=
         cursor.execute(sql_for_owner, (a, owner_id))
         mysql_conn.commit()
         print("Park added successfully.",a)
-        return {"created_park_id": a}
+        return {"success": True, "park_id": a}
     except Exception as e:
         print("Failed to add park:", str(e))
         return {"error": str(e)}

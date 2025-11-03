@@ -173,35 +173,30 @@ def delete_product(product_id_json:dict):
     try:
         sql_img = "SELECT fruit_image, fruit_image2, fruit_image3, fruit_image4, fruit_image5 FROM fruits WHERE id = %s"
         cursor.execute(sql_img, (fruit_id,))
-        images = cursor.fetchall()
-        for image in images:
-            if(image.get("fruit_image2")):
-                image_path = os.path.join("myapi/src", image.get("fruit_image2"))
+        images = cursor.fetchone()
+        if images:
+    # images 是元组，直接按位置访问每个字段
+            image_fields = ['fruit_image', 'fruit_image2', 'fruit_image3', 'fruit_image4', 'fruit_image5']
+            for i, image_filename in enumerate(images):
+                if image_filename:  # 检查是否不是 None 或空字符串
+                    image_path = os.path.join("myapi/src", image_filename)
                 if os.path.exists(image_path):
                     os.remove(image_path)
-            if(image.get("fruit_image")):
-                image_path = os.path.join("myapi/src", image.get("fruit_image"))
-                if os.path.exists(image_path):
-                    os.remove(image_path)
-            if(image.get("fruit_image3")):
-                image_path = os.path.join("myapi/src", image.get("fruit_image3"))
-                if os.path.exists(image_path):
-                    os.remove(image_path)
-            if(image.get("fruit_image4")):  
-                image_path = os.path.join("myapi/src", image.get("fruit_image4"))
-                if os.path.exists(image_path):
-                    os.remove(image_path)
-            if(image.get("fruit_image5")):  
-                image_path = os.path.join("myapi/src", image.get("fruit_image5"))
-                if os.path.exists(image_path):
-                    os.remove(image_path)
-        sql = "DELETE FROM fruits WHERE id = %s"
-        print(fruit_id)
-        cursor.execute(sql, (fruit_id,))
-        print(cursor.rowcount,fruit_id)
+                    print(f"已删除图片: {image_fields[i]} - {image_filename}")
+                else:
+                    print(f"图片不存在: {image_path}")
+        sql_search_cart = "DELETE FROM cart WHERE fruit_id = %s"
+        cursor.execute(sql_search_cart, (fruit_id,))
+        print(f"已删除购物车中相关记录: {cursor.rowcount}")
+        if cursor.rowcount > 0:
+            sql = "DELETE FROM fruits WHERE id = %s"
+            cursor.execute(sql, (fruit_id,))
+            print(f"已删除商品及其在购物车中的记录: {fruit_id}")
+        sql_fruit = "DELETE FROM fruits WHERE id = %s"
+        cursor.execute(sql_fruit, (fruit_id,))
         mysql_conn.commit()
-        return {"message": "Fruit deleted successfully"}
+        return {"message": "Fruit and related cart records deleted successfully"}
     except Exception as e:
-        return {"error": str(e)}
+        return {"message": str(e)+"删除失败"}
     finally:
         mysql.close_db_connection(mysql_conn, cursor)
